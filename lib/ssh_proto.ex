@@ -14,16 +14,28 @@ defmodule SSHProto do
 
   defmodule State do
     defstruct [
-      decode_sequence_number: 0,
-      encode_sequence_number: 0
+      encode: %{
+	sequence_number: 0
+      },
+      decode: %{
+	cipher: SSHProto.Cipher.None,
+	cipher_state: nil,
+	sequence_number: 0
+      }
     ]
 
     @typedoc """
     Struct to hold the protocol state. Should not be manipulated by caller.
     """
     @type t :: %__MODULE__{
-      decode_sequence_number: SSHProto.MAC.sequence_number(),
-      encode_sequence_number: SSHProto.MAC.sequence_number()
+      encode: %{
+	sequence_number: SSHProto.Util.uint32()
+      },
+      decode: %{
+	cipher: module(),
+	cipher_state: SSHProto.Cipher.state(),
+	sequence_number: SSHProto.Util.uint32()
+      }
     }
   end
 
@@ -44,16 +56,29 @@ defmodule SSHProto do
   | {:continue, State.t()}
   | {:error, any()}
 
-  def decode(_state, _data) do
-    # call into cipher
-    # if continue, return {:continue, state}
-    # if ok:
-    #   call into MAC
-    #   if continue, return {:continue, state}
-    #   if ok:
-    #     decode payload
-    #     return payload (as tuple)
-    {:error, :unimplemented}
+  def decode(state, data) do
+    d_state = state.decode
+
+    case d_state.cipher.decrypt(d_state.cipher_state, data) do
+      {:continue, new_c_state} ->
+	state = put_in(state, [:decode, :cipher_state], new_c_state)
+
+	{:continue, state}
+      {:error, e} ->
+	{:error, e}
+
+      {:ok, packet, rest, new_c_state} ->
+	state = put_in(state, [:decode, :cipher_state], new_c_state)
+
+	_ = {state, packet, rest}
+
+	# call into MAC
+	#   if continue, return {:continue, state}
+	#   if ok:
+	#     decode payload
+	#     return payload (as tuple)
+	{:error, :unfinished}
+    end
   end
 
   @doc """

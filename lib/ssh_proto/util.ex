@@ -19,4 +19,12 @@ defmodule SSHProto.Util do
     |> :binary.bin_to_list
     |> Enum.all?(fn c -> c in 33..44 or c in 46..126 end)
   end
+
+  @type uint32() :: 0..4294967296
+
+  def increment_uint32(4294967296),
+    do: 0
+
+  def increment_uint32(num),
+    do: num + 1
 end
