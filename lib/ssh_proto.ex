@@ -1,6 +1,6 @@
-defmodule SshProto do
+defmodule SSHProto do
   @moduledoc """
-  Documentation for `SshProto`.
+  Documentation for `SSHProto`.
   """
 
   defmodule Config do
@@ -18,18 +18,12 @@ defmodule SshProto do
       encode_sequence_number: 0
     ]
 
-    # TODO: consider moving sequence_number definition to another module?
-    @typedoc """
-    Packet sequence number used for message authentication.
-    """
-    @type sequence_number() :: 0..4294967296
-
     @typedoc """
     Struct to hold the protocol state. Should not be manipulated by caller.
     """
     @type t :: %__MODULE__{
-      decode_sequence_number: sequence_number(),
-      encode_sequence_number: sequence_number()
+      decode_sequence_number: SSHProto.MAC.sequence_number(),
+      encode_sequence_number: SSHProto.MAC.sequence_number()
     }
   end
 
@@ -67,10 +61,10 @@ defmodule SshProto do
 
   ## Examples
 
-      iex> SshProto.decode_version("SSH-2.0-OpenSSH_9.6\\r\\n")
+      iex> SSHProto.decode_version("SSH-2.0-OpenSSH_9.6\\r\\n")
       {:ok, "OpenSSH_9.6"}
 
-      iex> SshProto.decode_version("nonsense")
+      iex> SSHProto.decode_version("nonsense")
       {:error, {:parse_error, "\\"nonsense\\" is not a valid version message"}}
 
   """
@@ -95,16 +89,16 @@ defmodule SshProto do
 
   ## Examples
 
-      iex> SshProto.encode_version("Stellar_0.1.0")
+      iex> SSHProto.encode_version("Stellar_0.1.0")
       {:ok, "SSH-2.0-Stellar_0.1.0\\r\\n"}
 
-      iex> SshProto.encode_version("Stellar-0.1.0")
+      iex> SSHProto.encode_version("Stellar-0.1.0")
       {:error, :illegal_version_string}
 
   """
   @spec encode_version(String.t()) :: {:ok, String.t()} | {:error, any()}
   def encode_version(version_string) do
-    if SshProto.Util.legal_version_string?(version_string) do
+    if SSHProto.Util.legal_version_string?(version_string) do
       {:ok, "SSH-2.0-" <> version_string <> @crlf}
     else
       {:error, :illegal_version_string}

@@ -1,4 +1,4 @@
-defmodule SshProtoTest do
+defmodule SSHProtoTest do
   use ExUnit.Case
-  doctest SshProto
+  doctest SSHProto
 end

@@ -1,4 +1,4 @@
-# SshProto
+# SSHProto
 
 **TODO: Add description**
 

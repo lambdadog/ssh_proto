@@ -1,4 +1,4 @@
-defmodule SshProto.MixProject do
+defmodule SSHProto.MixProject do
   use Mix.Project
 
   def project do

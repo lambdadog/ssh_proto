@@ -1,4 +1,4 @@
-defmodule SshProto.Util do
+defmodule SSHProto.Util do
   require Logger
   @doc """
   Checks if version string is legal. Version string can only contain printable
@@ -6,10 +6,10 @@ defmodule SshProto.Util do
 
   ## Examples
 
-      iex> SshProto.Util.legal_version_string?("Stellar_0.1.0")
+      iex> SSHProto.Util.legal_version_string?("Stellar_0.1.0")
       true
 
-      iex> SshProto.Util.legal_version_string?("Stellar-0.1.0")
+      iex> SSHProto.Util.legal_version_string?("Stellar-0.1.0")
       false
 
   """
