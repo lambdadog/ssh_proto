@@ -33,6 +33,9 @@ defmodule SSHProto do
     }
   end
 
+  @doc """
+  Initialize SSHProto State struct with given Config struct.
+  """
   @spec init(Config.t()) :: {:ok, State.t()} | {:error, any()}
   def init(_config) do
     {:ok, %State{}}
