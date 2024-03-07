@@ -42,10 +42,20 @@ defmodule SSHProto do
   Decodes an SSH message. Due to the nature of the SSH protocol all messages
   must be decoded in order.
   """
-  @spec decode(State.t(), binary()) :: {:ok, tuple(), State.t()}
-                                     | {:continue, State.t()}
-                                     | {:error, any()}
+  @spec decode(State.t(), binary()) ::
+  {:ok, tuple(), State.t()}
+  | {:continue, State.t()}
+  | {:error, any()}
+
   def decode(_state, _data) do
+    # call into cipher
+    # if continue, return {:continue, state}
+    # if ok:
+    #   call into MAC
+    #   if continue, return {:continue, state}
+    #   if ok:
+    #     decode payload
+    #     return payload (as tuple)
     {:error, :unimplemented}
   end
 
@@ -53,10 +63,16 @@ defmodule SSHProto do
   Encodes an SSH message. Due to the nature of the SSH protocol all messages
   must be encoded in order.
   """
-  @spec encode(State.t(), tuple()) :: {:ok, binary(), State.t()}
-                                    | {:continue, State.t()}
-                                    | {:error, any()}
+  @spec encode(State.t(), tuple()) ::
+  {:ok, binary(), State.t()}
+  | {:error, any()}
+
   def encode(_state, _msg) do
+    # generate payload
+    # generate unencrypted packet
+    # generate mac
+    # call into cipher to encypt packet
+    # return packet <> mac
     {:error, :unimplemented}
   end
 
