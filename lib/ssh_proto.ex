@@ -18,12 +18,18 @@ defmodule SSHProto do
       encode_sequence_number: 0
     ]
 
+    # TODO: consider moving sequence_number definition to another module?
+    @typedoc """
+    Packet sequence number used for message authentication.
+    """
+    @type sequence_number() :: 0..4294967296
+
     @typedoc """
     Struct to hold the protocol state. Should not be manipulated by caller.
     """
     @type t :: %__MODULE__{
-      decode_sequence_number: SSHProto.MAC.sequence_number(),
-      encode_sequence_number: SSHProto.MAC.sequence_number()
+      decode_sequence_number: sequence_number(),
+      encode_sequence_number: sequence_number()
     }
   end
 
