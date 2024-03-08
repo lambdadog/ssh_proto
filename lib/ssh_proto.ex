@@ -90,11 +90,13 @@ defmodule SSHProto do
 	  {:ok, mac_state} ->
 	    state = put_in(state, [:decode, :mac_state], mac_state)
 
-	    # extract packet
-	    # decode payload
-	    # return payload (as tuple)
+	    case SSHProto.Packet.payload(packet) do
+	      {:error, e} ->
+		{:error, e}
 
-	    {:error, :unfinished}
+	      {:ok, payload} ->
+		{:ok, SSHProto.Payload.decode(payload), state}
+	    end
 	end
     end
   end

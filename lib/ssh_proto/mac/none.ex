@@ -3,7 +3,7 @@ defmodule SSHProto.MAC.None do
 
   @impl true
   def validate(state, _packet, <<>>) do
-    sequence_number = SSHProto.Utils.increment_uint32(state.sequence_number)
+    sequence_number = SSHProto.Util.increment_uint32(state.sequence_number)
 
     {:ok, %{state | sequence_number: sequence_number}}
   end
