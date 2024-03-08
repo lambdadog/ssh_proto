@@ -14,13 +14,13 @@ defmodule SSHProto do
 
   defmodule State do
     defstruct [
-      encode: %{
-	sequence_number: 0
-      },
+      encode: %{},
       decode: %{
 	cipher: SSHProto.Cipher.None,
 	cipher_state: nil,
-	sequence_number: 0
+
+	mac: SSHProto.MAC.None,
+	mac_state: %SSHProto.MAC.State{},
       }
     ]
 
@@ -28,13 +28,13 @@ defmodule SSHProto do
     Struct to hold the protocol state. Should not be manipulated by caller.
     """
     @type t :: %__MODULE__{
-      encode: %{
-	sequence_number: SSHProto.Util.uint32()
-      },
+      encode: %{},
       decode: %{
 	cipher: module(),
 	cipher_state: SSHProto.Cipher.state(),
-	sequence_number: SSHProto.Util.uint32()
+
+	mac: module(),
+	mac_state: SSHProto.MAC.State.t()
       }
     }
   end
@@ -57,28 +57,45 @@ defmodule SSHProto do
   | {:error, any()}
 
   def decode(state, data) do
-    d_state = state.decode
+    %{
+      cipher: cipher,
+      cipher_state: cipher_state
+    } = state.decode
 
-    case d_state.cipher.decrypt(d_state.cipher_state, data) do
-      {:continue, new_c_state} ->
-	state = put_in(state, [:decode, :cipher_state], new_c_state)
+    case cipher.decrypt(cipher_state, data) do
+      {:continue, cipher_state} ->
+	state = put_in(state, [:decode, :cipher_state], cipher_state)
 
 	{:continue, state}
       {:error, e} ->
 	{:error, e}
 
-      {:ok, packet, rest, new_c_state} ->
-	state = put_in(state, [:decode, :cipher_state], new_c_state)
+      {:ok, packet, rest, cipher_state} ->
+	state = put_in(state, [:decode, :cipher_state], cipher_state)
 
 	_ = {state, packet, rest}
 
-	# call into MAC
-	#   if continue, return {:continue, state}
-	#   if ok:
-	#     decode payload
-	#     return payload (as tuple)
-	{:error, :unfinished}
+	%{
+	  mac: mac,
+	  mac_state: mac_state
+	} = state.decode
+
+	case mac.validate(mac_state, packet, rest) do
+	  :continue ->
+	    {:continue, state}
+
+	  {:error, e} ->
+	    {:error, e}
+
+	  {:ok, mac_state} ->
+	    state = put_in(state, [:decode, :mac_state], mac_state)
+
+	    # decode payload
+	    # return payload (as tuple)
+	end
     end
+
+    {:error, :unfinished}
   end
 
   @doc """
