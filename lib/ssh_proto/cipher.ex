@@ -3,7 +3,7 @@ defmodule SSHProto.Cipher do
   `SSHProto.Cipher` behavior. All ciphers must implement this.
   """
 
-  @type state() :: any()
+  @type state :: any()
 
   @callback decrypt(state() | nil, binary()) ::
   {:ok, binary(), binary(), state()}

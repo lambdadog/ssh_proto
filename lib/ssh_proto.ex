@@ -27,7 +27,7 @@ defmodule SSHProto do
     @typedoc """
     Struct to hold the protocol state. Should not be manipulated by caller.
     """
-    @type t :: %__MODULE__{
+    @opaque t :: %__MODULE__{
       encode: %{},
       decode: %{
 	cipher: module(),
@@ -90,12 +90,13 @@ defmodule SSHProto do
 	  {:ok, mac_state} ->
 	    state = put_in(state, [:decode, :mac_state], mac_state)
 
+	    # extract packet
 	    # decode payload
 	    # return payload (as tuple)
+
+	    {:error, :unfinished}
 	end
     end
-
-    {:error, :unfinished}
   end
 
   @doc """

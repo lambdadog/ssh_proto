@@ -5,7 +5,7 @@ defmodule SSHProto.MAC do
       algorithm_state: nil
     ]
 
-    @type algorithm_state() :: any()
+    @type algorithm_state :: any()
 
     @type t :: %__MODULE__{
       sequence_number: SSHProto.Util.uint32(),
