@@ -64,16 +64,14 @@ defmodule SSHProto do
 
     case cipher.decrypt(cipher_state, data) do
       {:continue, cipher_state} ->
-	state = put_in(state, [:decode, :cipher_state], cipher_state)
+	state = put_in(state.decode.cipher_state, cipher_state)
 
 	{:continue, state}
       {:error, e} ->
 	{:error, e}
 
       {:ok, packet, rest, cipher_state} ->
-	state = put_in(state, [:decode, :cipher_state], cipher_state)
-
-	_ = {state, packet, rest}
+	state = put_in(state.decode.cipher_state, cipher_state)
 
 	%{
 	  mac: mac,
@@ -88,7 +86,7 @@ defmodule SSHProto do
 	    {:error, e}
 
 	  {:ok, mac_state} ->
-	    state = put_in(state, [:decode, :mac_state], mac_state)
+	    state = put_in(state.decode.mac_state, mac_state)
 
 	    case SSHProto.Packet.payload(packet) do
 	      {:error, e} ->
